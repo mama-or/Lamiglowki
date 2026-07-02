@@ -3,37 +3,37 @@
 
 #include <iostream>
 #include <stack>
+#include <memory>
 #include "lamiglowka.h"
 
 using namespace std;
 
 void algorytm(Lamiglowka &lamiglowka)
 {
-    stack<Rozwiazanie*> stos;
-    Rozwiazanie *r = lamiglowka.pierwszeRozwiazanie();
+    stack<std::unique_ptr<Rozwiazanie> > stos;
+	std::unique_ptr<Rozwiazanie> r = lamiglowka.pierwszeRozwiazanie();
     
-    stos.push(r);
+    stos.push(std::move(r));
 
     while(!stos.empty())
     {
         
-        Rozwiazanie *r = stos.top();
+		std::unique_ptr<Rozwiazanie> r = std::move(stos.top());
         stos.pop();
 
-        if(r->czyNiepelneRozwiazanie() && lamiglowka.czyNiepelneRozwiazanie(r))
+        if(r->czyNiepelneRozwiazanie() && lamiglowka.czyNiepelneRozwiazanie(r.get()))
         {
             if(r->czyPelna())
             {
-                if(r->czyRozwiazanie() && lamiglowka.czyPelneRozwiazanie(r))
+                if(r->czyRozwiazanie() && lamiglowka.czyPelneRozwiazanie(r.get()))
                 {
                     cout << "Rozwiazanie: " <<endl;
                     r->wyswietlRozwiazanie();
                     
                     while(!stos.empty())
                     {
-                        r = stos.top();
+                        r = std::move(stos.top());
                         stos.pop();
-                        delete r;
                     }
                     return;
                 }
@@ -42,17 +42,16 @@ void algorytm(Lamiglowka &lamiglowka)
             {
                 int kolumna, wiersz;
                 r->pustaPozycja(wiersz, kolumna);
-                list<int> wartosci = r->mozliweWartosci(wiersz, kolumna);
+				std::vector<int> wartosci = r->mozliweWartosci(wiersz, kolumna);
                 
                 for (int liczba: wartosci) 
                 {
-                    Rozwiazanie *r2 = r->kopiuj();
+					std::unique_ptr<Rozwiazanie> r2 = r->kopiuj();
                     r2->wstaw(wiersz, kolumna, liczba);
-                    stos.push(r2);
+                    stos.push(std::move(r2));
                 }
                 
             }
-            delete r;
         }
     }
 }
