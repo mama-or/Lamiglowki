@@ -17,6 +17,7 @@ class Rozwiazanie
         virtual void pustaPozycja(int &wiersz, int &kolumna) const = 0;
         virtual bool czyPelna() const = 0;
         virtual list<int> mozliweWartosci(const int wiersz, const int kolumna) const = 0;
+		virtual ~Rozwiazanie() = default;
 };
 
 /////////////////////////////////////////////////////////
@@ -239,6 +240,8 @@ bool RozwiazanieSudoku::czyNiepelneRozwiazanie() const
 
 list<int> RozwiazanieSudoku::mozliweWartosci(const int wiersz, const int kolumna) const
 {
+	(void)wiersz;
+	(void)kolumna;
     list<int> lista;
     for (int i=1;i<=9;i++)
         lista.push_back(i);
@@ -279,6 +282,7 @@ Rozwiazanie* RozwiazaniePermutacje::kopiuj() const
 
 void RozwiazaniePermutacje::wstaw(const int wiersz, const int kolumna, const int liczba) // kolumna jest pomijana
 {
+	(void)kolumna;
     rozwiazanie[wiersz] = liczba;
 }
 
@@ -358,6 +362,8 @@ list<int> RozwiazaniePermutacje::mozliweWartosci(const int wiersz, const int kol
 */
 list<int> RozwiazaniePermutacje::mozliweWartosci(const int wiersz, const int kolumna) const
 {
+	(void)wiersz;
+	(void)kolumna;
     list<int> lista;
     for(int i=0; i<ileLiczb; i++)
         lista.push_back(i);
@@ -452,6 +458,8 @@ bool RozwiazaniePetla::czyRozwiazanie() const
 }
 void RozwiazaniePetla::wstaw(const int wiersz, const int kolumna, const int liczba) //1 - prawo, 2-dol, 3-lewo, 4-gora, wiersz i kolumna sa pomijane
 {
+	(void)wiersz;
+	(void)kolumna;
     dlugoscDrogi++;
     if(liczba==1)
         rozwiazanie[dlugoscDrogi] = 'p';
@@ -487,6 +495,8 @@ bool RozwiazaniePetla::czyPelna() const // czy pelna petla, na razie nie sprawdz
 //1 - prawo, 2-dol, 3-lewo, 4-gora, wiersz i kolumna sa pomijane
 list<int> RozwiazaniePetla::mozliweWartosci(const int wiersz, const int kolumna) const
 {
+	(void)wiersz;
+	(void)kolumna;
     list<int> lista;
     if(dlugoscDrogi==0)
     {

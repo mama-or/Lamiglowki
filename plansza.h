@@ -10,6 +10,7 @@ class Plansza
     public:
         virtual bool pobierzLamiglowke(string nazwaPliku) = 0;
         virtual void wyswietlPlansze() = 0;
+		virtual ~Plansza() = default;
 };
 ///////////////////////////////////////////////////////////////////////////////////
 
