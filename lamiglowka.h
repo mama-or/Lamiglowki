@@ -84,11 +84,13 @@ Rozwiazanie* Sudoku::pierwszeRozwiazanie() const
 
 bool Sudoku::czyPelneRozwiazanie(Rozwiazanie * rozw) const
 {
+	(void)rozw;
     return true;
 }
 
 bool Sudoku::czyNiepelneRozwiazanie(Rozwiazanie * rozw) const
 {
+	(void)rozw;
     return true;
 }
 
