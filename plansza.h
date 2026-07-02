@@ -3,6 +3,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <vector>
 using namespace std;
 
 class Plansza
@@ -18,7 +19,6 @@ class PlanszaProstokatna: public Plansza
 {
     public:
         PlanszaProstokatna () {};
-        ~ PlanszaProstokatna ();
         virtual bool pobierzLamiglowke(string nazwaPliku);
         virtual void wyswietlPlansze();
         int getIleKolumn() const {return ileKolumn;};
@@ -26,24 +26,11 @@ class PlanszaProstokatna: public Plansza
         int getPlansza(const int wiersz, const int kolumna) const {return plansza[wiersz][kolumna];};
 
      private:
-        int **plansza;
+		std::vector<std::vector<int> > plansza;
         int ileKolumn;
         int ileWierszy;
 
 };
-
-PlanszaProstokatna::~PlanszaProstokatna ()
-{
-    for(int i=0; i<ileWierszy; i++)
-    {
-        if(plansza[i]!=0)
-            delete [] plansza[i];
-        plansza[i]=0;
-    }
-    if(plansza!=0)
-        delete [] plansza;    
-    plansza = 0;
-}
 
 bool PlanszaProstokatna::pobierzLamiglowke(string nazwaPliku)
 {
@@ -55,13 +42,13 @@ bool PlanszaProstokatna::pobierzLamiglowke(string nazwaPliku)
     }
     plik >> ileKolumn >> ileWierszy;
     
-    plansza = new int*[ileWierszy];
-    for(int i=0; i<ileWierszy; i++)
-        plansza[i] = new int[ileKolumn];
-
-    for(int i = 0; i<ileWierszy; ++i)
+	plansza.resize(ileWierszy);
+    for(int i = 0; i<ileWierszy; ++i) {
+		plansza[i].resize(ileKolumn);
         for(int j = 0; j<ileKolumn; ++j)
             plik >> plansza[i][j];
+	}
+
     plik.close();
     return true;
 }
@@ -81,7 +68,6 @@ class PlanszaFigury: public Plansza
 {
     public:
         PlanszaFigury () {};
-        ~ PlanszaFigury ();
         virtual bool pobierzLamiglowke(string nazwaPliku);
         virtual void wyswietlPlansze();
         int getIleFigur() const {return ileFigur;};
@@ -91,32 +77,12 @@ class PlanszaFigury: public Plansza
         int getWzorWnetrza( const int figura) const {return wzoryWnetrza[figura];};
 
      private:
-        char *ksztalty;
-        char *koloryWnetrza;
-        char *koloryRamki;
-        char *wzoryWnetrza;
+		std::vector<char> ksztalty;
+        std::vector<char> koloryWnetrza;
+        std::vector<char> koloryRamki;
+        std::vector<char> wzoryWnetrza;
         int ileFigur;
 };
-
-PlanszaFigury::~PlanszaFigury ()
-{
-    if(ksztalty!=0)
-        delete [] ksztalty;
-    ksztalty = 0;
-
-    if(koloryWnetrza!=0)
-        delete [] koloryWnetrza;
-    koloryWnetrza = 0;
-
-    if(koloryRamki!=0)
-        delete [] koloryRamki;
-    koloryRamki = 0;
-
-
-    if(wzoryWnetrza!=0)
-        delete [] wzoryWnetrza;
-    wzoryWnetrza = 0;
-}
 
 bool PlanszaFigury::pobierzLamiglowke(string nazwaPliku)
 {
@@ -128,10 +94,10 @@ bool PlanszaFigury::pobierzLamiglowke(string nazwaPliku)
     }
     plik >> ileFigur;
     
-    ksztalty = new char[ileFigur];
-    koloryWnetrza = new char[ileFigur];
-    koloryRamki = new char[ileFigur];
-    wzoryWnetrza = new char[ileFigur];
+	ksztalty.resize(ileFigur);
+	koloryWnetrza.resize(ileFigur);
+	koloryRamki.resize(ileFigur);
+	wzoryWnetrza.resize(ileFigur);
 
     for(int i = 0; i<ileFigur; ++i)
         plik >> ksztalty[i] >> koloryWnetrza[i] >> koloryRamki[i] >> wzoryWnetrza[i];

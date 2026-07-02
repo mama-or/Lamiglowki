@@ -2,7 +2,7 @@
 #define ROZWIAZANIE_H
 
 #include <iostream>
-#include <list>
+#include <vector>
 
 using namespace std;
 
@@ -10,13 +10,13 @@ class Rozwiazanie
 {
     public: 
         virtual void wyswietlRozwiazanie() const = 0;
-        virtual Rozwiazanie* kopiuj() const = 0;
+		virtual std::unique_ptr<Rozwiazanie> kopiuj() const = 0;
         virtual bool czyNiepelneRozwiazanie() const = 0;
         virtual bool czyRozwiazanie() const = 0;
         virtual void wstaw(const int wiersz, const int kolumna, const int liczba) = 0;
         virtual void pustaPozycja(int &wiersz, int &kolumna) const = 0;
         virtual bool czyPelna() const = 0;
-        virtual list<int> mozliweWartosci(const int wiersz, const int kolumna) const = 0;
+        virtual std::vector<int> mozliweWartosci(const int wiersz, const int kolumna) const = 0;
 		virtual ~Rozwiazanie() = default;
 };
 
@@ -25,12 +25,10 @@ class Rozwiazanie
 class RozwiazanieSudoku: public Rozwiazanie
 {
     public:
-        RozwiazanieSudoku( const RozwiazanieSudoku & rozw );
         RozwiazanieSudoku( const int wierszy, const int kolumn );
         RozwiazanieSudoku( ) {};
-        ~RozwiazanieSudoku();
-        
-        virtual Rozwiazanie* kopiuj() const;
+
+		virtual std::unique_ptr<Rozwiazanie> kopiuj() const;
         
         virtual void wyswietlRozwiazanie() const;
         bool czyNiepelneRozwiazanie() const;
@@ -38,13 +36,13 @@ class RozwiazanieSudoku: public Rozwiazanie
         virtual void wstaw(const int wiersz, const int kolumna, const int liczba);
         virtual void pustaPozycja(int &wiersz, int &kolumna) const;
         virtual bool czyPelna() const;
-        virtual list<int> mozliweWartosci(const int wiersz, const int kolumna) const;
+        virtual std::vector<int> mozliweWartosci(const int wiersz, const int kolumna) const;
     private:
         bool czyRozlaczneKolumny() const;
         bool czyRozlaczneWiersze() const;
         bool czyRozlaczneKwadraty() const;
     
-        int **rozwiazanie;
+		std::vector<std::vector<int> > rozwiazanie;
         int ileKolumn, ileWierszy;
 };
 
@@ -52,11 +50,9 @@ class RozwiazaniePetla: public Rozwiazanie
 {
     public:
         RozwiazaniePetla( ) {};
-        RozwiazaniePetla( const RozwiazaniePetla & rozw );
         RozwiazaniePetla( const int wierszy, const int kolumn );
-        ~RozwiazaniePetla();
-        
-        virtual Rozwiazanie* kopiuj() const;
+
+		virtual std::unique_ptr<Rozwiazanie> kopiuj() const;
         
         virtual void wyswietlRozwiazanie() const;
         bool czyNiepelneRozwiazanie() const;
@@ -64,10 +60,10 @@ class RozwiazaniePetla: public Rozwiazanie
         virtual void wstaw(const int wiersz, const int kolumna, const int liczba);
         virtual void pustaPozycja(int &wiersz, int &kolumna) const;
         virtual bool czyPelna() const;
-        virtual list<int> mozliweWartosci(const int wiersz, const int kolumna) const;
+        virtual std::vector<int> mozliweWartosci(const int wiersz, const int kolumna) const;
     private:
         int xStartowy, yStartowy;
-        char *rozwiazanie; // p - prawo, d - dol, l - lewo, g - gora
+		std::vector<char> rozwiazanie; // p - prawo, d - dol, l - lewo, g - gora
         int ileKolumn, ileWierszy;
         int dlugoscDrogi;
 };
@@ -77,12 +73,10 @@ class RozwiazaniePetla: public Rozwiazanie
 class RozwiazaniePermutacje: public Rozwiazanie
 {
     public:
-        RozwiazaniePermutacje( const RozwiazaniePermutacje & rozw );
         RozwiazaniePermutacje( ) {};
         RozwiazaniePermutacje(const int ile);
-        ~RozwiazaniePermutacje();
-        
-        virtual Rozwiazanie* kopiuj() const;
+
+		virtual std::unique_ptr<Rozwiazanie> kopiuj() const;
         
         virtual void wyswietlRozwiazanie() const;
         bool czyNiepelneRozwiazanie() const;
@@ -90,13 +84,13 @@ class RozwiazaniePermutacje: public Rozwiazanie
         virtual void wstaw(const int wiersz, const int kolumna, const int liczba);
         virtual void pustaPozycja(int &wiersz, int &kolumna) const;
         virtual bool czyPelna() const;
-        virtual list<int> mozliweWartosci(const int wiersz, const int kolumna) const;
+        virtual std::vector<int> mozliweWartosci(const int wiersz, const int kolumna) const;
         int getNr(const int ktora){ return rozwiazanie[ktora];};
     private:
         int najmniejszaWolna() const;
         bool czyRozlaczneLiczby() const;
         bool czyTrojkiPasuja() const;
-        int *rozwiazanie;
+		std::vector<int> rozwiazanie;
         int ileLiczb;
 };
 
@@ -104,43 +98,14 @@ class RozwiazaniePermutacje: public Rozwiazanie
 
 RozwiazanieSudoku::RozwiazanieSudoku( const int wierszy, const int kolumn ): ileKolumn (kolumn), ileWierszy(wierszy)
 {
-    rozwiazanie = new int*[ileWierszy];
+    rozwiazanie.resize(ileWierszy);
     for(int i=0; i<ileWierszy; i++)
-        rozwiazanie[i] = new int[ileKolumn];
+        rozwiazanie[i].resize(ileKolumn);
 }
 
-RozwiazanieSudoku::RozwiazanieSudoku( const RozwiazanieSudoku & rozw ): ileKolumn (rozw.ileKolumn), ileWierszy(rozw.ileWierszy)
+std::unique_ptr<Rozwiazanie> RozwiazanieSudoku::kopiuj() const
 {
-    rozwiazanie = new int*[ileWierszy];
-    for(int i=0; i<ileWierszy; i++)
-        rozwiazanie[i] = new int[ileKolumn];
-        
-    for(int i = 0; i<ileWierszy; ++i)
-        for(int j = 0; j<ileKolumn; ++j)
-            rozwiazanie[i][j] = rozw.rozwiazanie[i][j];
-}
-RozwiazanieSudoku::~RozwiazanieSudoku()
-{
-    for(int i=0; i<ileWierszy; i++)
-    {
-        if(rozwiazanie[i]!=0)
-            delete [] rozwiazanie[i];
-        rozwiazanie[i]=0;
-    }
-    if(rozwiazanie!=0)
-        delete [] rozwiazanie;
-    rozwiazanie = 0;
-}
-
-Rozwiazanie* RozwiazanieSudoku::kopiuj() const
-{
-    RozwiazanieSudoku *rozwiazanie = new RozwiazanieSudoku(ileWierszy, ileKolumn);
-    
-    for(int i = 0; i<ileWierszy; ++i)
-        for(int j = 0; j<ileKolumn; ++j)
-            rozwiazanie->wstaw(i, j, this->rozwiazanie[i][j]);
-            
-    return rozwiazanie;
+	return std::make_unique<RozwiazanieSudoku>(*this);
 }
 
 void RozwiazanieSudoku::wstaw(const int wiersz, const int kolumna, const int liczba)
@@ -238,46 +203,28 @@ bool RozwiazanieSudoku::czyNiepelneRozwiazanie() const
     return czyRozwiazanie();
 }
 
-list<int> RozwiazanieSudoku::mozliweWartosci(const int wiersz, const int kolumna) const
+std::vector<int> RozwiazanieSudoku::mozliweWartosci(const int wiersz, const int kolumna) const
 {
 	(void)wiersz;
 	(void)kolumna;
-    list<int> lista;
+	std::vector<int> vec;
+
+	vec.reserve(9);
     for (int i=1;i<=9;i++)
-        lista.push_back(i);
-    return lista;
+        vec.push_back(i);
+    return vec;
 }
 
 ///////////////////////////////////////////////////////////
 
-RozwiazaniePermutacje::RozwiazaniePermutacje( const RozwiazaniePermutacje & rozw ): ileLiczb (rozw.ileLiczb)
-{
-    rozwiazanie = new int[ileLiczb];
-    
-    for(int i=0; i<ileLiczb; i++)
-        rozwiazanie[i] = rozw.rozwiazanie[i];
-}
-
 RozwiazaniePermutacje::RozwiazaniePermutacje(const int ile): ileLiczb(ile)
 {
-    rozwiazanie = new int[ileLiczb];
+	rozwiazanie.resize(ileLiczb);
 }
 
-RozwiazaniePermutacje::~RozwiazaniePermutacje()
+std::unique_ptr<Rozwiazanie> RozwiazaniePermutacje::kopiuj() const
 {
-    if(rozwiazanie!=0)
-        delete [] rozwiazanie;
-    rozwiazanie = 0;
-}
-
-Rozwiazanie* RozwiazaniePermutacje::kopiuj() const
-{
-    RozwiazaniePermutacje *rozwiazanie = new RozwiazaniePermutacje(ileLiczb);
-    
-    for(int i = 0; i<ileLiczb; ++i)
-        rozwiazanie->wstaw(i, 0, this->rozwiazanie[i]);
-            
-    return rozwiazanie;
+	return std::make_unique<RozwiazaniePermutacje>(*this);
 }
 
 void RozwiazaniePermutacje::wstaw(const int wiersz, const int kolumna, const int liczba) // kolumna jest pomijana
@@ -360,64 +307,29 @@ list<int> RozwiazaniePermutacje::mozliweWartosci(const int wiersz, const int kol
     return lista;
 }
 */
-list<int> RozwiazaniePermutacje::mozliweWartosci(const int wiersz, const int kolumna) const
+std::vector<int> RozwiazaniePermutacje::mozliweWartosci(const int wiersz, const int kolumna) const
 {
 	(void)wiersz;
 	(void)kolumna;
-    list<int> lista;
+	std::vector<int> vec;
+
+	vec.reserve(ileLiczb);
     for(int i=0; i<ileLiczb; i++)
-        lista.push_back(i);
-    return lista;
+        vec.push_back(i);
+    return vec;
 }
 
 ///////////////////////////////////////////////////////////
 
-RozwiazaniePetla::RozwiazaniePetla( const RozwiazaniePetla & rozw )
-{
-    rozwiazanie = new char[(ileWierszy+1) * (ileKolumn+1)];
-    
-    ileKolumn = rozw.ileKolumn;
-    ileWierszy = rozw.ileWierszy;
-    dlugoscDrogi = rozw.dlugoscDrogi;
-    xStartowy = rozw.xStartowy;
-    yStartowy = rozw.yStartowy;
-    
-    for(int i=0; i<dlugoscDrogi; i++)
-        rozwiazanie[i] = rozw.rozwiazanie[i];
-}
-
 RozwiazaniePetla::RozwiazaniePetla( const int wierszy, const int kolumn )
 {
-    rozwiazanie = new char[(ileWierszy+1) * (ileKolumn+1)];
+	rozwiazanie.resize((ileWierszy+1) * (ileKolumn+1));
     
     ileKolumn = kolumn;
     ileWierszy = wierszy;
     dlugoscDrogi = 0;
     xStartowy = -1;
     yStartowy = -1;
-}
-RozwiazaniePetla::~RozwiazaniePetla()
-{
-    delete [] rozwiazanie;
-}
-    
-Rozwiazanie* RozwiazaniePetla::kopiuj() const
-{
-    RozwiazaniePetla *rozwiazanie = new RozwiazaniePetla;
-    
-    rozwiazanie->rozwiazanie = new char[(ileWierszy+1) * (ileKolumn+1)];
-    
-    rozwiazanie->ileKolumn = ileKolumn;
-    rozwiazanie->ileWierszy = ileWierszy;
-    rozwiazanie->dlugoscDrogi = dlugoscDrogi;
-    rozwiazanie->xStartowy = xStartowy;
-    rozwiazanie->yStartowy = yStartowy;
-    
-    for(int i=0; i<dlugoscDrogi; i++)
-        rozwiazanie->rozwiazanie[i] = this->rozwiazanie[i];
-    
-    return rozwiazanie;
-    
 }
 void RozwiazaniePetla::wyswietlRozwiazanie() const
 {
@@ -456,6 +368,10 @@ bool RozwiazaniePetla::czyRozwiazanie() const
 {
     return true;
 }
+std::unique_ptr<Rozwiazanie> RozwiazaniePetla::kopiuj() const
+{
+	return std::make_unique<RozwiazaniePetla>(*this);
+}
 void RozwiazaniePetla::wstaw(const int wiersz, const int kolumna, const int liczba) //1 - prawo, 2-dol, 3-lewo, 4-gora, wiersz i kolumna sa pomijane
 {
 	(void)wiersz;
@@ -493,44 +409,46 @@ bool RozwiazaniePetla::czyPelna() const // czy pelna petla, na razie nie sprawdz
 }
 
 //1 - prawo, 2-dol, 3-lewo, 4-gora, wiersz i kolumna sa pomijane
-list<int> RozwiazaniePetla::mozliweWartosci(const int wiersz, const int kolumna) const
+std::vector<int> RozwiazaniePetla::mozliweWartosci(const int wiersz, const int kolumna) const
 {
 	(void)wiersz;
 	(void)kolumna;
-    list<int> lista;
+	std::vector<int> vec;
+
+	vec.reserve(4);
     if(dlugoscDrogi==0)
     {
-        lista.push_back(1); // prawo
-        lista.push_back(2); // dol
-        lista.push_back(3); // lewo
-        lista.push_back(4); // gora
+        vec.push_back(1); // prawo
+        vec.push_back(2); // dol
+        vec.push_back(3); // lewo
+        vec.push_back(4); // gora
     }
     else if(rozwiazanie[dlugoscDrogi-1]=='g') 
     {
-        lista.push_back(1); // prawo
-        lista.push_back(3); // lewo
-        lista.push_back(4); // gora
+        vec.push_back(1); // prawo
+        vec.push_back(3); // lewo
+        vec.push_back(4); // gora
     }
     else if(rozwiazanie[dlugoscDrogi-1]=='d') 
     {
-        lista.push_back(1); // prawo
-        lista.push_back(2); // dol
-        lista.push_back(3); // lewo
+        vec.push_back(1); // prawo
+        vec.push_back(2); // dol
+        vec.push_back(3); // lewo
     }
     else if(rozwiazanie[dlugoscDrogi-1]=='p') 
     {
-        lista.push_back(1); // prawo
-        lista.push_back(2); // dol
-        lista.push_back(4); // gora
+        vec.push_back(1); // prawo
+        vec.push_back(2); // dol
+        vec.push_back(4); // gora
     }
     else if(rozwiazanie[dlugoscDrogi-1]=='l') 
     {
-        lista.push_back(2); // dol
-        lista.push_back(3); // lewo
-        lista.push_back(4); // gora
+        vec.push_back(2); // dol
+        vec.push_back(3); // lewo
+        vec.push_back(4); // gora
     }
     
-    return lista;
+    return vec;
 }
 
 #endif

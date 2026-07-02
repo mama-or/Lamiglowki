@@ -3,31 +3,31 @@
 
 #include "plansza.h"
 #include "rozwiazanie.h"
-
+#include <memory>
 
 class Lamiglowka
 {
     public:
         Lamiglowka () {};
-        ~Lamiglowka() {delete plansza;};
+		virtual ~Lamiglowka() = default;
         
         bool pobierzLamiglowke(string nazwaPliku);
         void wyswietlPlansze();
         
-        virtual Rozwiazanie* pierwszeRozwiazanie() const = 0;
+        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const = 0;
         virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const = 0;
         virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const = 0;
     
     protected:
-        Plansza *plansza;
+		std::unique_ptr<Plansza> plansza;
         
 };
 
 class Sudoku: public Lamiglowka
 {
     public:
-        Sudoku(){ plansza = new PlanszaProstokatna; };
-        virtual Rozwiazanie* pierwszeRozwiazanie() const;
+        Sudoku(){ plansza = std::make_unique<PlanszaProstokatna>(); };
+        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const;
         virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const;
         virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const;
 
@@ -36,8 +36,8 @@ class Sudoku: public Lamiglowka
 class ZnajdzTrzy: public Lamiglowka
 {
     public:
-        ZnajdzTrzy(){ plansza = new PlanszaFigury; };
-        virtual Rozwiazanie* pierwszeRozwiazanie() const;
+        ZnajdzTrzy(){ plansza = std::make_unique<PlanszaFigury>(); };
+        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const;
         virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const;
         virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const;
     private:
@@ -47,8 +47,8 @@ class ZnajdzTrzy: public Lamiglowka
 class OtwartaZagroda: public Lamiglowka
 {
     public:
-        OtwartaZagroda(){ plansza = new PlanszaProstokatna; };
-        virtual Rozwiazanie* pierwszeRozwiazanie() const;
+        OtwartaZagroda(){ plansza = std::make_unique<PlanszaProstokatna>(); };
+        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const;
         virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const;
         virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const;
 };
@@ -67,13 +67,13 @@ void Lamiglowka::wyswietlPlansze()
 
 ////////////////////////////////////////////////////////////
 
-Rozwiazanie* Sudoku::pierwszeRozwiazanie() const
+std::unique_ptr<Rozwiazanie> Sudoku::pierwszeRozwiazanie() const
 {
-    PlanszaProstokatna *pp = (dynamic_cast<PlanszaProstokatna *> (plansza));
+    PlanszaProstokatna *pp = (dynamic_cast<PlanszaProstokatna *> (plansza.get()));
     int ileKolumn = pp->getIleKolumn();
     int ileWierszy = pp->getIleWierszy();
     
-    RozwiazanieSudoku* rozwiazanie = new RozwiazanieSudoku(ileWierszy, ileKolumn);
+	std::unique_ptr<RozwiazanieSudoku> rozwiazanie = std::make_unique<RozwiazanieSudoku>(ileWierszy, ileKolumn);
     
     for(int i = 0; i<ileWierszy; ++i)
         for(int j = 0; j<ileKolumn; ++j)
@@ -97,12 +97,12 @@ bool Sudoku::czyNiepelneRozwiazanie(Rozwiazanie * rozw) const
 
 ////////////////////////////////////////////////////////////
 
-Rozwiazanie* ZnajdzTrzy::pierwszeRozwiazanie() const
+std::unique_ptr<Rozwiazanie> ZnajdzTrzy::pierwszeRozwiazanie() const
 {
-    PlanszaFigury *pzn = (dynamic_cast<PlanszaFigury *> (plansza));
+    PlanszaFigury *pzn = (dynamic_cast<PlanszaFigury *> (plansza.get()));
     int ileFigur = pzn->getIleFigur();
 
-    RozwiazaniePermutacje* rozwiazanie = new RozwiazaniePermutacje(ileFigur);
+	std::unique_ptr<RozwiazaniePermutacje> rozwiazanie = std::make_unique<RozwiazaniePermutacje>(ileFigur);
 
     rozwiazanie->wstaw(0, 0, 0);
     
@@ -114,7 +114,7 @@ Rozwiazanie* ZnajdzTrzy::pierwszeRozwiazanie() const
 
 bool ZnajdzTrzy::czyFiguryPasuja(const int figura1, const int figura2, const int figura3) const
 {
-    PlanszaFigury *pzn = (dynamic_cast<PlanszaFigury *> (plansza));
+    PlanszaFigury *pzn = (dynamic_cast<PlanszaFigury *> (plansza.get()));
     
     if(pzn->getKsztalt(figura1)==pzn->getKsztalt(figura2) && pzn->getKsztalt(figura1) != pzn->getKsztalt(figura3)) return false;
     if(pzn->getKsztalt(figura1)==pzn->getKsztalt(figura3) && pzn->getKsztalt(figura1) != pzn->getKsztalt(figura2)) return false;
@@ -138,7 +138,7 @@ bool ZnajdzTrzy::czyFiguryPasuja(const int figura1, const int figura2, const int
 bool ZnajdzTrzy::czyPelneRozwiazanie(Rozwiazanie * rozw) const
 {
     RozwiazaniePermutacje *rzt = (dynamic_cast<RozwiazaniePermutacje *> (rozw));
-    PlanszaFigury *pf = (dynamic_cast<PlanszaFigury *> (plansza));
+    PlanszaFigury *pf = (dynamic_cast<PlanszaFigury *> (plansza.get()));
     for(int i=0; i<pf->getIleFigur(); i++)
     {
         if(i%3==2 && rzt->getNr(i)!=-1)
