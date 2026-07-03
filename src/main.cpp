@@ -5,7 +5,7 @@
 using namespace std;
 
 Sudoku lamiglowka;
-string nazwaPliku = "sudoku.txt";
+string nazwaPliku = "plansze/sudoku.txt";
 
 //ZnajdzTrzy lamiglowka;
 //string nazwaPliku = "znajdz trzy.txt";
