@@ -1,7 +1,7 @@
 CXX = g++
-CFLAGS = -Wall -Wextra -Werror
-CXXFLAGS = $(CFLAGS) -std=c++23
-LDFLAGS = 
+CFLAGS = -Wall -Wextra -Werror -g -Isrc
+CXXFLAGS = $(CFLAGS) -std=c++26
+LDFLAGS = -g
 
 SRC = $(shell find src -name *.cpp)
 OBJ = $(SRC:src%.cpp=build/%.o)

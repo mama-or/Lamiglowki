@@ -1,101 +1,18 @@
-#ifndef LAMIGLOWKA_H
-#define LAMIGLOWKA_H
-
-#include "plansza.h"
-#include "rozwiazanie.h"
 #include <memory>
+#include "plansze/plansza.h"
+#include "plansze/planszaProstokatna.h"
+#include "plansze/planszaFigury.h"
+#include "rozwiazania/rozwiazanie.h"
+#include "rozwiazania/rozwiazanieProstokatne.h"
+#include "rozwiazania/rozwiazaniePermutacje.h"
+#include "rozwiazania/rozwiazaniePetla.h"
+#include "ograniczenia/ograniczenie.h"
+#include "znajdzTrzy.h"
 
-class Lamiglowka
+ZnajdzTrzy::ZnajdzTrzy()
 {
-    public:
-        Lamiglowka () {};
-		virtual ~Lamiglowka() = default;
-        
-        bool pobierzLamiglowke(string nazwaPliku);
-        void wyswietlPlansze();
-        
-        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const = 0;
-        virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const = 0;
-        virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const = 0;
-    
-    protected:
-		std::unique_ptr<Plansza> plansza;
-        
-};
-
-class Sudoku: public Lamiglowka
-{
-    public:
-        Sudoku(){ plansza = std::make_unique<PlanszaProstokatna>(); };
-        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const;
-        virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const;
-        virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const;
-
-};
-
-class ZnajdzTrzy: public Lamiglowka
-{
-    public:
-        ZnajdzTrzy(){ plansza = std::make_unique<PlanszaFigury>(); };
-        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const;
-        virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const;
-        virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const;
-    private:
-        bool czyFiguryPasuja(const int figura1, const int figura2, const int figura3) const;
-};
-
-class OtwartaZagroda: public Lamiglowka
-{
-    public:
-        OtwartaZagroda(){ plansza = std::make_unique<PlanszaProstokatna>(); };
-        virtual std::unique_ptr<Rozwiazanie> pierwszeRozwiazanie() const;
-        virtual bool czyPelneRozwiazanie(Rozwiazanie * rozw) const;
-        virtual bool czyNiepelneRozwiazanie(Rozwiazanie * rozw) const;
-};
-
-
-//////////////////////////////////////////////////////
-
-bool Lamiglowka::pobierzLamiglowke(string nazwaPliku)
-{
-    return plansza->pobierzLamiglowke(nazwaPliku);
+	plansza = std::make_unique<PlanszaFigury>(); 
 }
-void Lamiglowka::wyswietlPlansze()
-{
-    plansza->wyswietlPlansze();
-}
-
-////////////////////////////////////////////////////////////
-
-std::unique_ptr<Rozwiazanie> Sudoku::pierwszeRozwiazanie() const
-{
-    PlanszaProstokatna *pp = (dynamic_cast<PlanszaProstokatna *> (plansza.get()));
-    int ileKolumn = pp->getIleKolumn();
-    int ileWierszy = pp->getIleWierszy();
-    
-	std::unique_ptr<RozwiazanieSudoku> rozwiazanie = std::make_unique<RozwiazanieSudoku>(ileWierszy, ileKolumn);
-    
-    for(int i = 0; i<ileWierszy; ++i)
-        for(int j = 0; j<ileKolumn; ++j)
-            rozwiazanie->wstaw(i, j, pp->getPlansza(i, j));
-
-    return rozwiazanie;
-}
-
-bool Sudoku::czyPelneRozwiazanie(Rozwiazanie * rozw) const
-{
-	(void)rozw;
-    return true;
-}
-
-bool Sudoku::czyNiepelneRozwiazanie(Rozwiazanie * rozw) const
-{
-	(void)rozw;
-    return true;
-}
-
-
-////////////////////////////////////////////////////////////
 
 std::unique_ptr<Rozwiazanie> ZnajdzTrzy::pierwszeRozwiazanie() const
 {
@@ -111,6 +28,12 @@ std::unique_ptr<Rozwiazanie> ZnajdzTrzy::pierwszeRozwiazanie() const
     
     return rozwiazanie;
 }
+
+bool ZnajdzTrzy::pobierzLamiglowke(std::string nazwaPliku)
+{
+    return plansza->pobierzLamiglowke(nazwaPliku);
+}
+
 
 bool ZnajdzTrzy::czyFiguryPasuja(const int figura1, const int figura2, const int figura3) const
 {
@@ -155,6 +78,3 @@ bool ZnajdzTrzy::czyNiepelneRozwiazanie(Rozwiazanie * rozw) const
 {
     return czyPelneRozwiazanie(rozw);
 }
-
-
-#endif

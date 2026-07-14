@@ -1,14 +1,17 @@
 #include <iostream>
-#include "algorytm.h"
-#include "lamiglowka.h"
+#include "algorytm/algorytm.h"
+#include "lamiglowki/lamiglowka.h"
+#include "lamiglowki/sudoku.h"
+#include "lamiglowki/znajdzTrzy.h"
+#include "lamiglowki/otwartaZagroda.h"
 
 using namespace std;
 
-Sudoku lamiglowka;
-string nazwaPliku = "plansze/sudoku.txt";
+//Sudoku lamiglowka;
+//string nazwaPliku = "plansze/sudoku.txt";
 
-//ZnajdzTrzy lamiglowka;
-//string nazwaPliku = "znajdz trzy.txt";
+ZnajdzTrzy lamiglowka;
+string nazwaPliku = "plansze/znajdz trzy.txt";
 
 
 //string nazwaPliku = "otwarta zagroda.txt";

@@ -1,16 +1,15 @@
-#ifndef ALGORYTM_H
-#define ALGORYTM_H
+#ifndef ALGORYTM_CPP
+#define ALGORYTM_CPP
 
 #include <iostream>
 #include <stack>
 #include <memory>
-#include "lamiglowka.h"
-
-using namespace std;
+#include "../lamiglowki/lamiglowka.h"
+#include "algorytm.h"
 
 void algorytm(Lamiglowka &lamiglowka)
 {
-    stack<std::unique_ptr<Rozwiazanie> > stos;
+    std::stack<std::unique_ptr<Rozwiazanie> > stos;
 	std::unique_ptr<Rozwiazanie> r = lamiglowka.pierwszeRozwiazanie();
     
     stos.push(std::move(r));
@@ -21,13 +20,14 @@ void algorytm(Lamiglowka &lamiglowka)
 		std::unique_ptr<Rozwiazanie> r = std::move(stos.top());
         stos.pop();
 
-        if(r->czyNiepelneRozwiazanie() && lamiglowka.czyNiepelneRozwiazanie(r.get()))
+		if(lamiglowka.czyNiepelneRozwiazanie(r.get()) && lamiglowka.czyNiepelneRozwiazanie(r.get()))
+//        if(r->czyNiepelneRozwiazanie() && lamiglowka.czyNiepelneRozwiazanie(r.get()))
         {
             if(r->czyPelna())
             {
                 if(r->czyRozwiazanie() && lamiglowka.czyPelneRozwiazanie(r.get()))
                 {
-                    cout << "Rozwiazanie: " <<endl;
+                    std::cout << "Rozwiazanie: " <<std::endl;
                     r->wyswietlRozwiazanie();
                     
                     while(!stos.empty())
